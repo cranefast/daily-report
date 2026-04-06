@@ -12,10 +12,11 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 @Component
-public class FallbackTrendAnalyzer {
+public class FallbackTrendAnalyzer implements TrendAnalyzer {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
+    @Override
     public ArticleAnalysis analyze(RankedArticle rankedArticle) {
         CollectedArticle article = rankedArticle.article();
         ScoreBreakdown scoreBreakdown = rankedArticle.scoreBreakdown();

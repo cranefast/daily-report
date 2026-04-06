@@ -14,16 +14,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class OpenAiTrendAnalyzer implements TrendAnalyzer {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm z");
@@ -32,34 +29,22 @@ public class OpenAiTrendAnalyzer implements TrendAnalyzer {
     private final OpenAiProperties openAiProperties;
     private final PromptTemplateService promptTemplateService;
     private final ObjectMapper objectMapper;
-    private final FallbackTrendAnalyzer fallbackTrendAnalyzer;
 
     @Override
     public ArticleAnalysis analyze(RankedArticle article) {
-        if (!StringUtils.hasText(openAiProperties.getApiKey())) {
-            log.warn("OPENAI_API_KEY is not configured. Falling back to rule-based analysis.");
-            return fallbackTrendAnalyzer.analyze(article);
-        }
+        JsonNode requestBody = buildRequestBody(article);
+        JsonNode response = webClientBuilder.build()
+                .post()
+                .uri(openAiProperties.getBaseUrl() + "/responses")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + openAiProperties.getApiKey())
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(JsonNode.class)
+                .block(openAiProperties.getTimeout());
 
-        try {
-            JsonNode requestBody = buildRequestBody(article);
-            JsonNode response = webClientBuilder.build()
-                    .post()
-                    .uri(openAiProperties.getBaseUrl() + "/responses")
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + openAiProperties.getApiKey())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(requestBody)
-                    .retrieve()
-                    .bodyToMono(JsonNode.class)
-                    .block(openAiProperties.getTimeout());
-
-            String outputText = extractOutputText(response);
-            return parseAnalysis(outputText);
-        } catch (Exception exception) {
-            log.warn("OpenAI analysis failed for title='{}'. Falling back. message={}",
-                    article.article().title(), exception.getMessage());
-            return fallbackTrendAnalyzer.analyze(article);
-        }
+        String outputText = extractOutputText(response);
+        return parseAnalysis(outputText);
     }
 
     private JsonNode buildRequestBody(RankedArticle article) {
@@ -153,12 +138,17 @@ public class OpenAiTrendAnalyzer implements TrendAnalyzer {
         throw new IllegalStateException("OpenAI response did not contain text content");
     }
 
-    private ArticleAnalysis parseAnalysis(String rawText) throws Exception {
+    private ArticleAnalysis parseAnalysis(String rawText) {
         String sanitized = rawText.trim()
                 .replace("```json", "")
                 .replace("```", "")
                 .trim();
-        JsonNode root = objectMapper.readTree(sanitized);
+        JsonNode root;
+        try {
+            root = objectMapper.readTree(sanitized);
+        } catch (Exception exception) {
+            throw new IllegalStateException("Failed to parse OpenAI analysis response", exception);
+        }
 
         return new ArticleAnalysis(
                 root.path("summary").asText("요약을 생성하지 못했습니다."),

@@ -29,8 +29,8 @@ public class MarkdownReportFormatter {
 
     public TrendReport format(List<AnalyzedArticle> analyzedArticles) {
         ZoneId zoneId = ZoneId.of(reportProperties.getZoneId());
-        LocalDate reportDate = LocalDate.now(zoneId);
         Instant generatedAt = Instant.now(clock);
+        LocalDate reportDate = generatedAt.atZone(zoneId).toLocalDate();
 
         StringBuilder markdown = new StringBuilder();
         markdown.append("[").append(reportDate).append(" 최신 트렌드 리포트]\n\n");

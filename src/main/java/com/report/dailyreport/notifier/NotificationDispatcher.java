@@ -1,6 +1,5 @@
 package com.report.dailyreport.notifier;
 
-import com.report.dailyreport.config.ReportProperties;
 import com.report.dailyreport.model.TrendReport;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -13,22 +12,21 @@ import org.springframework.stereotype.Service;
 public class NotificationDispatcher {
 
     private final List<Notifier> notifiers;
-    private final ReportProperties reportProperties;
 
     public void dispatch(TrendReport report) {
         System.out.println(report.markdown());
 
-        if (reportProperties.isDryRun()) {
+        if (report.dryRun()) {
             log.info("Dry-run mode is enabled. Notification dispatch was skipped.");
             return;
         }
 
         notifiers.stream()
-                .filter(notifier -> notifier.supports(reportProperties.getChannel()))
+                .filter(notifier -> notifier.supports(report.channel()))
                 .findFirst()
                 .ifPresentOrElse(
                         notifier -> sendSafely(notifier, report),
-                        () -> log.warn("No notifier registered for channel={}", reportProperties.getChannel())
+                        () -> log.warn("No notifier registered for channel={}", report.channel())
                 );
     }
 
@@ -37,7 +35,7 @@ public class NotificationDispatcher {
             notifier.send(report);
         } catch (Exception exception) {
             log.error("Notification delivery failed: channel={}, message={}",
-                    reportProperties.getChannel(), exception.getMessage(), exception);
+                    report.channel(), exception.getMessage(), exception);
         }
     }
 }
