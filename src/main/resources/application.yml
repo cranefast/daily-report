@@ -1,0 +1,102 @@
+spring:
+  main:
+    web-application-type: none
+    banner-mode: off
+  mail:
+    host: ${EMAIL_HOST:}
+    port: ${EMAIL_PORT:587}
+    username: ${EMAIL_USERNAME:}
+    password: ${EMAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+openai:
+  api-key: ${OPENAI_API_KEY:}
+  base-url: ${OPENAI_BASE_URL:https://api.openai.com/v1}
+  model: ${OPENAI_MODEL:gpt-5.4}
+  reasoning-effort: ${OPENAI_REASONING_EFFORT:low}
+  verbosity: ${OPENAI_VERBOSITY:medium}
+  timeout: ${OPENAI_TIMEOUT:45s}
+
+report:
+  top-n: ${REPORT_TOP_N:4}
+  dry-run: ${REPORT_DRY_RUN:true}
+  channel: ${REPORT_CHANNEL:EMAIL}
+  zone-id: ${REPORT_ZONE_ID:Asia/Seoul}
+  duplicate-title-similarity-threshold: ${REPORT_DUPLICATE_TITLE_SIMILARITY_THRESHOLD:0.82}
+  lookback-hours: ${REPORT_LOOKBACK_HOURS:72}
+  max-entries-per-source: ${REPORT_MAX_ENTRIES_PER_SOURCE:10}
+  runner:
+    enabled: ${REPORT_RUNNER_ENABLED:true}
+  scoring:
+    recency-weight: ${REPORT_RECENCY_WEIGHT:0.35}
+    keyword-weight: ${REPORT_KEYWORD_WEIGHT:0.30}
+    source-reliability-weight: ${REPORT_SOURCE_RELIABILITY_WEIGHT:0.20}
+    repetition-weight: ${REPORT_REPETITION_WEIGHT:0.15}
+
+notification:
+  email:
+    to: ${EMAIL_TO:}
+    from: ${EMAIL_FROM:}
+    subject-prefix: ${EMAIL_SUBJECT_PREFIX:[Daily Report]}
+  slack:
+    webhook-url: ${SLACK_WEBHOOK_URL:}
+
+feeds:
+  categories:
+    ai:
+      - name: OpenAI News
+        url: "https://openai.com/news/rss.xml"
+        reliability: 0.98
+        keywords: [gpt, model, agent, api, reasoning]
+      - name: Hugging Face Blog
+        url: "https://huggingface.co/blog/feed.xml"
+        reliability: 0.90
+        keywords: [open source, model, transformers, inference, agent]
+      - name: Google News AI
+        url: "https://news.google.com/rss/search?q=artificial+intelligence+OR+generative+AI+when:7d&hl=en-US&gl=US&ceid=US:en"
+        reliability: 0.82
+        keywords: [artificial intelligence, generative ai, startup, semiconductor]
+    development:
+      - name: GitHub Blog
+        url: "https://github.blog/feed/"
+        reliability: 0.95
+        keywords: [release, developer, platform, open source]
+      - name: Google Developers Blog
+        url: "https://blog.google/innovation-and-ai/technology/developers-tools/rss/"
+        reliability: 0.90
+        keywords: [developer, sdk, tooling, platform, release]
+      - name: Google News Dev
+        url: "https://news.google.com/rss/search?q=software+development+OR+programming+when:7d&hl=en-US&gl=US&ceid=US:en"
+        reliability: 0.80
+        keywords: [framework, release, programming, engineering]
+    real_estate:
+      - name: Redfin News
+        url: "https://www.redfin.com/news/feed/"
+        reliability: 0.86
+        keywords: [housing, mortgage, inventory, rent]
+      - name: Realtor News
+        url: "https://www.realtor.com/news/feed/"
+        reliability: 0.84
+        keywords: [real estate, housing, mortgage, market]
+      - name: Google News Real Estate
+        url: "https://news.google.com/rss/search?q=real+estate+market+when:7d&hl=en-US&gl=US&ceid=US:en"
+        reliability: 0.78
+        keywords: [real estate, rates, home sales, supply]
+    economy:
+      - name: MarketWatch Top Stories
+        url: "https://feeds.marketwatch.com/marketwatch/topstories/"
+        reliability: 0.88
+        keywords: [economy, inflation, rates, demand, earnings]
+      - name: Federal Reserve Press
+        url: "https://www.federalreserve.gov/feeds/press_monetary.xml"
+        reliability: 0.96
+        keywords: [federal reserve, rates, inflation, policy, statement]
+      - name: Google News Economy
+        url: "https://news.google.com/rss/search?q=economy+OR+inflation+OR+interest+rates+when:7d&hl=en-US&gl=US&ceid=US:en"
+        reliability: 0.80
+        keywords: [economy, inflation, labor market, interest rates]

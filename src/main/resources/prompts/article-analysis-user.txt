@@ -1,0 +1,19 @@
+카테고리: {{category}}
+카테고리 가이드: {{category_guidance}}
+기사 제목: {{title}}
+기사 출처: {{source_name}}
+기사 원문 URL: {{article_url}}
+수집 소스 URL: {{source_url}}
+발행 시각: {{published_at}}
+원문 요약: {{summary}}
+중요도 총점: {{score_total}}
+중요도 breakdown:
+{{score_breakdown}}
+
+위 기사에 대해 아래 조건을 반영해 한국어로 분석하세요.
+- `summary`: 한 문장 핵심 요약
+- `detailed_explanation`: 왜 이런 흐름이 나왔는지 배경과 맥락을 구체적으로 설명
+- `importance_reason`: 중요도 점수와 연결해 중요한 이유를 설명
+- `industry_impact`: AI/개발 카테고리는 IT 산업 영향과 실무 관점, 부동산/경제는 이전 추세와 달라진 점 및 영향 업종을 포함
+- `practical_implications`: 실무자가 지금 체크해야 할 행동 포인트
+- `follow_up_points`: 후속으로 봐야 할 지표/발표/변수 3개
