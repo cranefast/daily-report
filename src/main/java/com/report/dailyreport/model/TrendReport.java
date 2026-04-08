@@ -8,11 +8,11 @@ public record TrendReport(
         LocalDate reportDate,
         Instant generatedAt,
         String markdown,
-        List<AnalyzedArticle> articles,
+        List<CategoryTrendSection> sections,
         NotificationChannel channel,
         boolean dryRun
 ) {
     public TrendReport {
-        articles = articles == null ? List.of() : List.copyOf(articles);
+        sections = sections == null ? List.of() : List.copyOf(sections);
     }
 }

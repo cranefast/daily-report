@@ -10,7 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "report")
 public class ReportProperties {
 
-    private int topN = 4;
+    private int topN = 3;
     private boolean dryRun = true;
     private NotificationChannel channel = NotificationChannel.EMAIL;
     private String zoneId = "Asia/Seoul";

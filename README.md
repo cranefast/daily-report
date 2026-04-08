@@ -1,15 +1,16 @@
 # Daily Trend Report Generator
 
-Spring Boot 기반 개인용 최신 트렌드 리포트 자동 생성기입니다. RSS로 AI/개발/부동산/경제 뉴스를 수집하고, 중복 제거와 중요도 점수 계산을 거쳐 상위 이슈를 선별한 뒤 OpenAI `Responses API`로 상세 분석 리포트를 생성합니다.
+Spring Boot 기반 개인용 최신 트렌드 리포트 자동 생성기입니다. RSS로 AI/개발/부동산/경제 뉴스를 수집하고, 중복 제거와 중요도 점수 계산을 거쳐 카테고리별 상위 이슈를 선별한 뒤 OpenAI `Responses API`로 분야별 상세 리포트와 인사이트를 생성합니다.
 
 ## 구성
 
 ```text
 DailyReportRunner
+  -> TrendReportGenerationService
   -> RssCollector
   -> DeduplicationService
   -> ImportanceRanker
-  -> OpenAiTrendAnalyzer (실패 시 FallbackTrendAnalyzer)
+  -> ResilientTrendAnalyzer
   -> MarkdownReportFormatter
   -> NotificationDispatcher (Email / Slack)
 ```
@@ -47,8 +48,9 @@ export EMAIL_TO=receiver@example.com
 주요 설정은 `src/main/resources/application.yml` 에 있고, 운영에서는 환경변수로 덮어쓰는 방식을 권장합니다.
 
 - `OPENAI_API_KEY`: OpenAI API 키
-- `OPENAI_MODEL`: 기본값 `gpt-5.4`
-- `REPORT_TOP_N`: 상위 기사 수, 내부적으로 3~5 범위로 보정
+- `OPENAI_MODEL`: 기본값 `gpt-5.4-mini`
+- `OPENAI_MAX_OUTPUT_TOKENS`: 기본값 `1200`
+- `REPORT_TOP_N`: 카테고리별 상위 기사 수, 내부적으로 3~5 범위로 보정
 - `REPORT_DRY_RUN`: `true`면 콘솔 출력만 수행
 - `REPORT_CHANNEL`: `EMAIL` 또는 `SLACK`
 - `EMAIL_*`: SMTP 및 수신자 설정
@@ -109,5 +111,9 @@ export SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
 ## 참고
 
 - OpenAI 분석은 공식 `Responses API` 호출 기반입니다.
+- 운영 기본값은 비용 절감을 위해 `gpt-5.4-mini`, `verbosity=low`, `top-n=3`으로 조정했습니다.
+- 각 카테고리별 상위 3건씩 최대 12건을 OpenAI에 1회만 전달해 분야별 인사이트와 기사별 한줄 포인트를 함께 생성합니다.
+- 메일 본문은 분야별 인사이트와 중요 뉴스 링크를 한 섹션에 묶어 제공합니다.
+- 응답 `usage`를 로그로 남겨 input/output/cached/reasoning token을 추적할 수 있습니다.
 - `OPENAI_API_KEY`가 없거나 API 호출이 실패하면 규칙 기반 fallback 분석으로 계속 진행합니다.
 - RSS 일부 실패, OpenAI 실패, 전송 실패는 전체 프로세스를 중단하지 않고 로그로 남깁니다.
