@@ -39,7 +39,7 @@ export EMAIL_HOST=smtp.gmail.com
 export EMAIL_PORT=587
 export EMAIL_USERNAME=your-account@gmail.com
 export EMAIL_PASSWORD=app-password
-export EMAIL_TO=receiver@example.com
+export EMAIL_TO=receiver@example.com,team@example.com
 ./gradlew bootRun
 ```
 
@@ -86,6 +86,7 @@ export EMAIL_TO=receiver@example.com
 
 - Gmail 예시는 `EMAIL_HOST=smtp.gmail.com`, `EMAIL_PORT=587`
 - Gmail을 쓸 경우 일반 비밀번호 대신 앱 비밀번호를 권장합니다.
+- `EMAIL_TO`는 여러 명을 지원하며 쉼표, 세미콜론, 줄바꿈으로 구분할 수 있습니다. 예: `a@example.com,b@example.com`
 - dry-run 모드에서는 메일 전송 없이 콘솔에 Markdown 리포트만 출력합니다.
 
 ## Slack 확장 방법

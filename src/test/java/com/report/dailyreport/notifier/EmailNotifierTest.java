@@ -15,6 +15,7 @@ import com.report.dailyreport.model.TrendReport;
 import jakarta.mail.Multipart;
 import jakarta.mail.Part;
 import jakarta.mail.Session;
+import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -39,7 +40,7 @@ class EmailNotifierTest {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
 
         NotificationProperties notificationProperties = new NotificationProperties();
-        notificationProperties.getEmail().setTo("receiver@example.com");
+        notificationProperties.getEmail().setTo("receiver@example.com; second@example.com,\nthird@example.com");
         notificationProperties.getEmail().setFrom("sender@example.com");
 
         ReportProperties reportProperties = new ReportProperties();
@@ -59,6 +60,9 @@ class EmailNotifierTest {
         List<String> bodies = new ArrayList<>();
         collectParts(capturedMessage, contentTypes, bodies);
 
+        InternetAddress[] recipients = (InternetAddress[]) capturedMessage.getRecipients(MimeMessage.RecipientType.TO);
+        assertThat(recipients).extracting(InternetAddress::getAddress)
+                .containsExactly("receiver@example.com", "second@example.com", "third@example.com");
         assertThat(contentTypes).anyMatch(type -> type.contains("text/plain"));
         assertThat(contentTypes).anyMatch(type -> type.contains("text/html"));
         assertThat(String.join("\n", bodies)).contains("plain text report");
