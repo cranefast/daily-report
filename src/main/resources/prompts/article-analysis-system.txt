@@ -8,3 +8,4 @@ Rules:
 5. `follow_up_points` must contain exactly 3 short phrases.
 6. `article_highlights` must preserve the same article ids and order as the input for each category.
 7. Avoid repeating article titles verbatim unless needed for clarity.
+8. Do not abbreviate titles, highlights, or summaries with ellipses.

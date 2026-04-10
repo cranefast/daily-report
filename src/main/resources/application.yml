@@ -20,8 +20,8 @@ openai:
   model: ${OPENAI_MODEL:gpt-5.4-mini}
   reasoning-effort: ${OPENAI_REASONING_EFFORT:none}
   verbosity: ${OPENAI_VERBOSITY:low}
-  max-output-tokens: ${OPENAI_MAX_OUTPUT_TOKENS:1200}
-  timeout: ${OPENAI_TIMEOUT:45s}
+  max-output-tokens: ${OPENAI_MAX_OUTPUT_TOKENS:4000}
+  timeout: ${OPENAI_TIMEOUT:60s}
 
 report:
   top-n: ${REPORT_TOP_N:3}
@@ -75,29 +75,42 @@ feeds:
         url: "https://news.google.com/rss/search?q=software+development+OR+programming+when:7d&hl=en-US&gl=US&ceid=US:en"
         reliability: 0.80
         keywords: [framework, release, programming, engineering]
-    real_estate:
-      - name: Redfin News
-        url: "https://www.redfin.com/news/feed/"
-        reliability: 0.86
-        keywords: [housing, mortgage, inventory, rent]
-      - name: Realtor News
-        url: "https://www.realtor.com/news/feed/"
-        reliability: 0.84
-        keywords: [real estate, housing, mortgage, market]
-      - name: Google News Real Estate
-        url: "https://news.google.com/rss/search?q=real+estate+market+when:7d&hl=en-US&gl=US&ceid=US:en"
-        reliability: 0.78
-        keywords: [real estate, rates, home sales, supply]
-    economy:
-      - name: MarketWatch Top Stories
-        url: "https://feeds.marketwatch.com/marketwatch/topstories/"
+    korea_real_estate:
+      - name: 국토교통부 정책브리핑
+        url: "https://www.korea.kr/rss/dept_molit.xml"
+        reliability: 0.96
+        keywords: [부동산, 주택, 공급, 청약, 전세, 대출]
+      - name: 매일경제 부동산
+        url: "https://www.mk.co.kr/rss/50300009/"
         reliability: 0.88
-        keywords: [economy, inflation, rates, demand, earnings]
+        keywords: [부동산, 아파트, 주택, 전세, 매매, 분양]
+      - name: Google News Korea Real Estate
+        url: "https://news.google.com/rss/search?q=%EB%B6%80%EB%8F%99%EC%82%B0%20%EC%8B%9C%EC%9E%A5%20OR%20%EC%A3%BC%ED%83%9D%20OR%20%EC%95%84%ED%8C%8C%ED%8A%B8%20OR%20%EC%A0%84%EC%84%B8%20when%3A7d&hl=ko&gl=KR&ceid=KR:ko"
+        reliability: 0.79
+        keywords: [부동산 시장, 주택, 아파트, 전세, 공급]
+    korea_economy:
+      - name: 한국은행 보도자료 통계
+        url: "https://www.bok.or.kr/portal/bbs/B0000501/news.rss?"
+        reliability: 0.97
+        keywords: [기준금리, 물가, 성장률, 환율, 수출, 고용]
+      - name: 매일경제 경제
+        url: "https://www.mk.co.kr/rss/30100041/"
+        reliability: 0.89
+        keywords: [한국 경제, 기준금리, 물가, 수출, 성장률]
+      - name: Google News Korea Economy
+        url: "https://news.google.com/rss/search?q=%ED%95%9C%EA%B5%AD%20%EA%B8%88%EB%A6%AC%20OR%20%EB%AC%BC%EA%B0%80%20OR%20%EC%88%98%EC%B6%9C%20OR%20%EA%B2%BD%EC%A0%9C%EC%84%B1%EC%9E%A5%20when%3A7d&hl=ko&gl=KR&ceid=KR:ko"
+        reliability: 0.81
+        keywords: [한국 금리, 물가, 수출, 경제성장, 환율]
+    global_economy:
       - name: Federal Reserve Press
         url: "https://www.federalreserve.gov/feeds/press_monetary.xml"
         reliability: 0.96
         keywords: [federal reserve, rates, inflation, policy, statement]
-      - name: Google News Economy
-        url: "https://news.google.com/rss/search?q=economy+OR+inflation+OR+interest+rates+when:7d&hl=en-US&gl=US&ceid=US:en"
+      - name: MarketWatch Top Stories
+        url: "https://feeds.marketwatch.com/marketwatch/topstories/"
+        reliability: 0.88
+        keywords: [economy, inflation, rates, demand, earnings]
+      - name: Google News Global Economy
+        url: "https://news.google.com/rss/search?q=US%20economy%20OR%20global%20economy%20when%3A7d&hl=en-US&gl=US&ceid=US:en"
         reliability: 0.80
-        keywords: [economy, inflation, labor market, interest rates]
+        keywords: [us economy, global economy, inflation, labor market, interest rates]

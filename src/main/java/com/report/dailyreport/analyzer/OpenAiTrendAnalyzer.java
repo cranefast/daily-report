@@ -10,7 +10,6 @@ import com.report.dailyreport.model.CollectedArticle;
 import com.report.dailyreport.model.RankedArticle;
 import com.report.dailyreport.model.ReportCategory;
 import com.report.dailyreport.util.PromptTemplateService;
-import com.report.dailyreport.util.TextNormalizationUtils;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -52,8 +51,9 @@ public class OpenAiTrendAnalyzer implements TrendAnalyzer {
                 .block(openAiProperties.getTimeout());
 
         logUsage(response, articlesByCategory);
+        validateStructuredResponse(response);
         String outputText = extractOutputText(response);
-        return parseSections(outputText, articlesByCategory);
+        return parseSections(response, outputText, articlesByCategory);
     }
 
     private JsonNode buildRequestBody(Map<ReportCategory, List<RankedArticle>> articlesByCategory) {
@@ -189,7 +189,33 @@ public class OpenAiTrendAnalyzer implements TrendAnalyzer {
 
     private String compactSummary(String summary, String fallbackTitle) {
         String base = summary == null || summary.isBlank() ? fallbackTitle : summary;
-        return TextNormalizationUtils.shorten(base, 180);
+        return base == null ? "" : base.trim();
+    }
+
+    private void validateStructuredResponse(JsonNode response) {
+        if (response == null || response.isMissingNode()) {
+            throw new IllegalStateException("OpenAI response is empty");
+        }
+
+        String status = response.path("status").asText("");
+        if ("incomplete".equals(status)) {
+            String reason = response.path("incomplete_details").path("reason").asText("unknown");
+            String message = "OpenAI response is incomplete. reason=" + reason;
+            if ("max_output_tokens".equals(reason)) {
+                message += ". Increase openai.max-output-tokens or reduce report.top-n.";
+            }
+            throw new IllegalStateException(message);
+        }
+
+        if (String.valueOf(status).isBlank() || "completed".equals(status)) {
+            String refusal = findRefusal(response);
+            if (!refusal.isBlank()) {
+                throw new IllegalStateException("OpenAI response was refused: " + refusal);
+            }
+            return;
+        }
+
+        throw new IllegalStateException("OpenAI response is not ready for parsing. status=" + status);
     }
 
     private String extractOutputText(JsonNode response) {
@@ -229,6 +255,7 @@ public class OpenAiTrendAnalyzer implements TrendAnalyzer {
     }
 
     private List<CategoryTrendSection> parseSections(
+            JsonNode response,
             String rawText,
             Map<ReportCategory, List<RankedArticle>> articlesByCategory
     ) {
@@ -240,6 +267,12 @@ public class OpenAiTrendAnalyzer implements TrendAnalyzer {
         try {
             root = objectMapper.readTree(sanitized);
         } catch (Exception exception) {
+            log.warn(
+                    "Failed to parse OpenAI analysis response. status={}, incomplete_reason={}, output_preview={}",
+                    response.path("status").asText("unknown"),
+                    response.path("incomplete_details").path("reason").asText("n/a"),
+                    preview(rawText)
+            );
             throw new IllegalStateException("Failed to parse OpenAI analysis response", exception);
         }
 
@@ -336,6 +369,41 @@ public class OpenAiTrendAnalyzer implements TrendAnalyzer {
 
     private String articleId(ReportCategory category, int index) {
         return category.name() + "-" + (index + 1);
+    }
+
+    private String findRefusal(JsonNode response) {
+        JsonNode outputs = response.path("output");
+        if (!outputs.isArray()) {
+            return "";
+        }
+
+        for (JsonNode output : outputs) {
+            JsonNode contents = output.path("content");
+            if (!contents.isArray()) {
+                continue;
+            }
+            for (JsonNode content : contents) {
+                if ("refusal".equals(content.path("type").asText())) {
+                    return preview(content.path("refusal").asText(""));
+                }
+            }
+        }
+        return "";
+    }
+
+    private String preview(String rawText) {
+        if (rawText == null) {
+            return "";
+        }
+        String normalized = rawText
+                .replace('\n', ' ')
+                .replace('\r', ' ')
+                .replaceAll("\\s+", " ")
+                .trim();
+        if (normalized.length() <= 240) {
+            return normalized;
+        }
+        return normalized.substring(0, 240) + "...";
     }
 
     private void logUsage(JsonNode response, Map<ReportCategory, List<RankedArticle>> articlesByCategory) {

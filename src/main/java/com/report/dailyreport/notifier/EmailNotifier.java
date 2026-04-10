@@ -1,6 +1,7 @@
 package com.report.dailyreport.notifier;
 
 import com.report.dailyreport.config.NotificationProperties;
+import com.report.dailyreport.formatter.HtmlEmailReportFormatter;
 import com.report.dailyreport.model.NotificationChannel;
 import com.report.dailyreport.model.TrendReport;
 import jakarta.mail.internet.MimeMessage;
@@ -18,6 +19,7 @@ public class EmailNotifier implements Notifier {
 
     private final JavaMailSender mailSender;
     private final NotificationProperties notificationProperties;
+    private final HtmlEmailReportFormatter htmlEmailReportFormatter;
 
     @Override
     public NotificationChannel channel() {
@@ -31,13 +33,13 @@ public class EmailNotifier implements Notifier {
         }
 
         MimeMessage mimeMessage = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
         helper.setTo(notificationProperties.getEmail().getTo().split("\\s*,\\s*"));
         if (StringUtils.hasText(notificationProperties.getEmail().getFrom())) {
             helper.setFrom(notificationProperties.getEmail().getFrom());
         }
         helper.setSubject(notificationProperties.getEmail().getSubjectPrefix() + " " + report.reportDate());
-        helper.setText(report.markdown(), false);
+        helper.setText(report.markdown(), htmlEmailReportFormatter.format(report));
         mailSender.send(mimeMessage);
         log.info("Daily report email sent to {}", notificationProperties.getEmail().getTo());
     }

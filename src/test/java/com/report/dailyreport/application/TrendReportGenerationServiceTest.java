@@ -72,38 +72,47 @@ class TrendReportGenerationServiceTest {
                 sampleArticle(ReportCategory.DEVELOPMENT, "DEV-2"),
                 sampleArticle(ReportCategory.DEVELOPMENT, "DEV-3"),
                 sampleArticle(ReportCategory.DEVELOPMENT, "DEV-4"),
-                sampleArticle(ReportCategory.REAL_ESTATE, "RE-1"),
-                sampleArticle(ReportCategory.REAL_ESTATE, "RE-2"),
-                sampleArticle(ReportCategory.REAL_ESTATE, "RE-3"),
-                sampleArticle(ReportCategory.REAL_ESTATE, "RE-4"),
-                sampleArticle(ReportCategory.ECONOMY, "EC-1"),
-                sampleArticle(ReportCategory.ECONOMY, "EC-2"),
-                sampleArticle(ReportCategory.ECONOMY, "EC-3"),
-                sampleArticle(ReportCategory.ECONOMY, "EC-4")
+                sampleArticle(ReportCategory.KOREA_REAL_ESTATE, "KR-RE-1"),
+                sampleArticle(ReportCategory.KOREA_REAL_ESTATE, "KR-RE-2"),
+                sampleArticle(ReportCategory.KOREA_REAL_ESTATE, "KR-RE-3"),
+                sampleArticle(ReportCategory.KOREA_REAL_ESTATE, "KR-RE-4"),
+                sampleArticle(ReportCategory.KOREA_ECONOMY, "KR-EC-1"),
+                sampleArticle(ReportCategory.KOREA_ECONOMY, "KR-EC-2"),
+                sampleArticle(ReportCategory.KOREA_ECONOMY, "KR-EC-3"),
+                sampleArticle(ReportCategory.KOREA_ECONOMY, "KR-EC-4"),
+                sampleArticle(ReportCategory.GLOBAL_ECONOMY, "GL-EC-1"),
+                sampleArticle(ReportCategory.GLOBAL_ECONOMY, "GL-EC-2"),
+                sampleArticle(ReportCategory.GLOBAL_ECONOMY, "GL-EC-3"),
+                sampleArticle(ReportCategory.GLOBAL_ECONOMY, "GL-EC-4")
         );
         List<RankedArticle> ranked = List.of(
                 sampleRankedArticle(ReportCategory.AI, "AI-1", 98),
                 sampleRankedArticle(ReportCategory.DEVELOPMENT, "DEV-1", 97),
-                sampleRankedArticle(ReportCategory.REAL_ESTATE, "RE-1", 96),
-                sampleRankedArticle(ReportCategory.ECONOMY, "EC-1", 95),
+                sampleRankedArticle(ReportCategory.KOREA_REAL_ESTATE, "KR-RE-1", 96),
+                sampleRankedArticle(ReportCategory.KOREA_ECONOMY, "KR-EC-1", 95),
+                sampleRankedArticle(ReportCategory.GLOBAL_ECONOMY, "GL-EC-1", 94),
                 sampleRankedArticle(ReportCategory.AI, "AI-2", 94),
                 sampleRankedArticle(ReportCategory.DEVELOPMENT, "DEV-2", 93),
-                sampleRankedArticle(ReportCategory.REAL_ESTATE, "RE-2", 92),
-                sampleRankedArticle(ReportCategory.ECONOMY, "EC-2", 91),
-                sampleRankedArticle(ReportCategory.AI, "AI-3", 90),
-                sampleRankedArticle(ReportCategory.DEVELOPMENT, "DEV-3", 89),
-                sampleRankedArticle(ReportCategory.REAL_ESTATE, "RE-3", 88),
-                sampleRankedArticle(ReportCategory.ECONOMY, "EC-3", 87),
-                sampleRankedArticle(ReportCategory.AI, "AI-4", 86),
-                sampleRankedArticle(ReportCategory.DEVELOPMENT, "DEV-4", 85),
-                sampleRankedArticle(ReportCategory.REAL_ESTATE, "RE-4", 84),
-                sampleRankedArticle(ReportCategory.ECONOMY, "EC-4", 83)
+                sampleRankedArticle(ReportCategory.KOREA_REAL_ESTATE, "KR-RE-2", 92),
+                sampleRankedArticle(ReportCategory.KOREA_ECONOMY, "KR-EC-2", 91),
+                sampleRankedArticle(ReportCategory.GLOBAL_ECONOMY, "GL-EC-2", 90),
+                sampleRankedArticle(ReportCategory.AI, "AI-3", 89),
+                sampleRankedArticle(ReportCategory.DEVELOPMENT, "DEV-3", 88),
+                sampleRankedArticle(ReportCategory.KOREA_REAL_ESTATE, "KR-RE-3", 87),
+                sampleRankedArticle(ReportCategory.KOREA_ECONOMY, "KR-EC-3", 86),
+                sampleRankedArticle(ReportCategory.GLOBAL_ECONOMY, "GL-EC-3", 85),
+                sampleRankedArticle(ReportCategory.AI, "AI-4", 84),
+                sampleRankedArticle(ReportCategory.DEVELOPMENT, "DEV-4", 83),
+                sampleRankedArticle(ReportCategory.KOREA_REAL_ESTATE, "KR-RE-4", 82),
+                sampleRankedArticle(ReportCategory.KOREA_ECONOMY, "KR-EC-4", 81),
+                sampleRankedArticle(ReportCategory.GLOBAL_ECONOMY, "GL-EC-4", 80)
         );
         List<CategoryTrendSection> sections = List.of(
                 new CategoryTrendSection(ReportCategory.AI, sampleInsight(), List.of()),
                 new CategoryTrendSection(ReportCategory.DEVELOPMENT, sampleInsight(), List.of()),
-                new CategoryTrendSection(ReportCategory.REAL_ESTATE, sampleInsight(), List.of()),
-                new CategoryTrendSection(ReportCategory.ECONOMY, sampleInsight(), List.of())
+                new CategoryTrendSection(ReportCategory.KOREA_REAL_ESTATE, sampleInsight(), List.of()),
+                new CategoryTrendSection(ReportCategory.KOREA_ECONOMY, sampleInsight(), List.of()),
+                new CategoryTrendSection(ReportCategory.GLOBAL_ECONOMY, sampleInsight(), List.of())
         );
 
         when(rssCollector.collectAll()).thenReturn(collected);
@@ -131,8 +140,9 @@ class TrendReportGenerationServiceTest {
     private boolean containsTopThreePerCategory(Map<ReportCategory, List<RankedArticle>> selected) {
         return titles(selected.get(ReportCategory.AI)).equals(List.of("AI-1", "AI-2", "AI-3"))
                 && titles(selected.get(ReportCategory.DEVELOPMENT)).equals(List.of("DEV-1", "DEV-2", "DEV-3"))
-                && titles(selected.get(ReportCategory.REAL_ESTATE)).equals(List.of("RE-1", "RE-2", "RE-3"))
-                && titles(selected.get(ReportCategory.ECONOMY)).equals(List.of("EC-1", "EC-2", "EC-3"));
+                && titles(selected.get(ReportCategory.KOREA_REAL_ESTATE)).equals(List.of("KR-RE-1", "KR-RE-2", "KR-RE-3"))
+                && titles(selected.get(ReportCategory.KOREA_ECONOMY)).equals(List.of("KR-EC-1", "KR-EC-2", "KR-EC-3"))
+                && titles(selected.get(ReportCategory.GLOBAL_ECONOMY)).equals(List.of("GL-EC-1", "GL-EC-2", "GL-EC-3"));
     }
 
     private List<String> titles(List<RankedArticle> rankedArticles) {

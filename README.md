@@ -1,6 +1,6 @@
 # Daily Trend Report Generator
 
-Spring Boot 기반 개인용 최신 트렌드 리포트 자동 생성기입니다. RSS로 AI/개발/부동산/경제 뉴스를 수집하고, 중복 제거와 중요도 점수 계산을 거쳐 카테고리별 상위 이슈를 선별한 뒤 OpenAI `Responses API`로 분야별 상세 리포트와 인사이트를 생성합니다.
+Spring Boot 기반 개인용 최신 트렌드 리포트 자동 생성기입니다. RSS로 AI/개발/부동산(한국)/경제(한국)/경제(글로벌) 뉴스를 수집하고, 중복 제거와 중요도 점수 계산을 거쳐 카테고리별 상위 이슈를 선별한 뒤 OpenAI `Responses API`로 분야별 상세 리포트와 인사이트를 생성합니다.
 
 ## 구성
 
@@ -49,7 +49,7 @@ export EMAIL_TO=receiver@example.com
 
 - `OPENAI_API_KEY`: OpenAI API 키
 - `OPENAI_MODEL`: 기본값 `gpt-5.4-mini`
-- `OPENAI_MAX_OUTPUT_TOKENS`: 기본값 `1200`
+- `OPENAI_MAX_OUTPUT_TOKENS`: 기본값 `4000`
 - `REPORT_TOP_N`: 카테고리별 상위 기사 수, 내부적으로 3~5 범위로 보정
 - `REPORT_DRY_RUN`: `true`면 콘솔 출력만 수행
 - `REPORT_CHANNEL`: `EMAIL` 또는 `SLACK`

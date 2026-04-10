@@ -116,8 +116,15 @@ public class ImportanceRanker {
         Map<ReportCategory, Set<String>> keywords = new EnumMap<>(ReportCategory.class);
         keywords.put(ReportCategory.AI, Set.of("ai", "llm", "model", "agent", "inference", "gpu", "semiconductor"));
         keywords.put(ReportCategory.DEVELOPMENT, Set.of("release", "framework", "sdk", "developer", "api", "platform"));
-        keywords.put(ReportCategory.REAL_ESTATE, Set.of("housing", "mortgage", "inventory", "rent", "construction", "property"));
-        keywords.put(ReportCategory.ECONOMY, Set.of("inflation", "gdp", "rates", "employment", "consumer", "exports"));
+        keywords.put(ReportCategory.KOREA_REAL_ESTATE, Set.of(
+                "부동산", "주택", "아파트", "전세", "매매", "청약", "분양", "재건축", "재개발", "공급", "housing", "apartment"
+        ));
+        keywords.put(ReportCategory.KOREA_ECONOMY, Set.of(
+                "금리", "기준금리", "물가", "환율", "수출", "성장률", "고용", "소비", "inflation", "exports", "growth"
+        ));
+        keywords.put(ReportCategory.GLOBAL_ECONOMY, Set.of(
+                "inflation", "gdp", "rates", "employment", "consumer", "exports", "fed", "tariff", "oil", "global economy", "us economy"
+        ));
         return keywords;
     }
 
