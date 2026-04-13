@@ -51,6 +51,8 @@ export EMAIL_TO=receiver@example.com,team@example.com
 - `OPENAI_MODEL`: 기본값 `gpt-5.4-mini`
 - `OPENAI_MAX_OUTPUT_TOKENS`: 기본값 `4000`
 - `REPORT_TOP_N`: 카테고리별 상위 기사 수, 내부적으로 3~5 범위로 보정
+- `REPORT_MAX_ENTRIES_PER_SOURCE`: RSS 소스당 읽을 후보 기사 수, 기본값 `20`
+- `REPORT_MAX_ARTICLES_PER_SOURCE`: 최종 리포트에서 소스당 최대 선정 기사 수, 기본값 `2`
 - `REPORT_DRY_RUN`: `true`면 콘솔 출력만 수행
 - `REPORT_CHANNEL`: `EMAIL` 또는 `SLACK`
 - `EMAIL_*`: SMTP 및 수신자 설정
@@ -113,6 +115,8 @@ export SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
 
 - OpenAI 분석은 공식 `Responses API` 호출 기반입니다.
 - 운영 기본값은 비용 절감을 위해 `gpt-5.4-mini`, `verbosity=low`, `top-n=3`으로 조정했습니다.
+- RSS는 소스당 더 넓게 수집한 뒤, 최종 선정 단계에서 소스당 과점이 생기지 않도록 제한합니다.
+- 중요도는 단일 카테고리 키워드보다 `같은 주제를 여러 소스가 반복 보도했는지`를 더 크게 반영합니다.
 - 각 카테고리별 상위 3건씩 최대 12건을 OpenAI에 1회만 전달해 분야별 인사이트와 기사별 한줄 포인트를 함께 생성합니다.
 - 메일 본문은 분야별 인사이트와 중요 뉴스 링크를 한 섹션에 묶어 제공합니다.
 - 응답 `usage`를 로그로 남겨 input/output/cached/reasoning token을 추적할 수 있습니다.

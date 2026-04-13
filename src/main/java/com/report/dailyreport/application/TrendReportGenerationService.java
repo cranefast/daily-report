@@ -12,6 +12,7 @@ import com.report.dailyreport.model.ReportCategory;
 import com.report.dailyreport.model.TrendReport;
 import com.report.dailyreport.ranker.ImportanceRanker;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -54,13 +55,30 @@ public class TrendReportGenerationService {
 
     private Map<ReportCategory, List<RankedArticle>> selectTopArticlesByCategory(List<RankedArticle> rankedArticles) {
         int topNPerCategory = reportProperties.effectiveTopN();
+        int maxArticlesPerSource = reportProperties.effectiveMaxArticlesPerSource();
         EnumMap<ReportCategory, List<RankedArticle>> selected = new EnumMap<>(ReportCategory.class);
 
         for (ReportCategory category : ReportCategory.values()) {
-            List<RankedArticle> topArticles = rankedArticles.stream()
-                    .filter(rankedArticle -> rankedArticle.article().category() == category)
-                    .limit(topNPerCategory)
-                    .toList();
+            List<RankedArticle> topArticles = new java.util.ArrayList<>();
+            Map<String, Integer> articlesPerSource = new HashMap<>();
+
+            for (RankedArticle rankedArticle : rankedArticles) {
+                if (rankedArticle.article().category() != category) {
+                    continue;
+                }
+
+                String sourceName = rankedArticle.article().sourceName();
+                int currentCount = articlesPerSource.getOrDefault(sourceName, 0);
+                if (currentCount >= maxArticlesPerSource) {
+                    continue;
+                }
+
+                topArticles.add(rankedArticle);
+                articlesPerSource.put(sourceName, currentCount + 1);
+                if (topArticles.size() >= topNPerCategory) {
+                    break;
+                }
+            }
             selected.put(category, topArticles);
 
             if (topArticles.isEmpty()) {

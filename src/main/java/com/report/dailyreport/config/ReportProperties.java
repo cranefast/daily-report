@@ -15,8 +15,9 @@ public class ReportProperties {
     private NotificationChannel channel = NotificationChannel.EMAIL;
     private String zoneId = "Asia/Seoul";
     private double duplicateTitleSimilarityThreshold = 0.82;
-    private long lookbackHours = 72;
-    private int maxEntriesPerSource = 10;
+    private long lookbackHours = 120;
+    private int maxEntriesPerSource = 20;
+    private int maxArticlesPerSource = 2;
     private Scoring scoring = new Scoring();
     private Runner runner = new Runner();
 
@@ -24,14 +25,18 @@ public class ReportProperties {
         return Math.max(3, Math.min(5, topN));
     }
 
+    public int effectiveMaxArticlesPerSource() {
+        return Math.max(1, maxArticlesPerSource);
+    }
+
     @Getter
     @Setter
     public static class Scoring {
 
-        private double recencyWeight = 0.35;
-        private double keywordWeight = 0.30;
+        private double recencyWeight = 0.30;
+        private double keywordWeight = 0.15;
         private double sourceReliabilityWeight = 0.20;
-        private double repetitionWeight = 0.15;
+        private double repetitionWeight = 0.35;
     }
 
     @Getter

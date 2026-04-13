@@ -137,6 +137,51 @@ class TrendReportGenerationServiceTest {
         verify(formatter).format(sections);
     }
 
+    @Test
+    void limitsArticlesPerSourceWithinCategory() {
+        RssCollector rssCollector = mock(RssCollector.class);
+        DeduplicationService deduplicationService = mock(DeduplicationService.class);
+        ImportanceRanker importanceRanker = mock(ImportanceRanker.class);
+        TrendAnalyzer trendAnalyzer = mock(TrendAnalyzer.class);
+        MarkdownReportFormatter formatter = mock(MarkdownReportFormatter.class);
+        ReportProperties reportProperties = new ReportProperties();
+        reportProperties.setTopN(3);
+        reportProperties.setMaxArticlesPerSource(1);
+        TrendReportGenerationService service = new TrendReportGenerationService(
+                rssCollector, deduplicationService, importanceRanker, trendAnalyzer, formatter, reportProperties
+        );
+
+        List<CollectedArticle> collected = List.of(sampleArticle(ReportCategory.AI, "AI-1"));
+        List<RankedArticle> ranked = List.of(
+                sampleRankedArticle(ReportCategory.AI, "AI-1", 98, "same-source"),
+                sampleRankedArticle(ReportCategory.AI, "AI-2", 97, "same-source"),
+                sampleRankedArticle(ReportCategory.AI, "AI-3", 96, "other-source"),
+                sampleRankedArticle(ReportCategory.AI, "AI-4", 95, "third-source")
+        );
+        List<CategoryTrendSection> sections = List.of(
+                new CategoryTrendSection(ReportCategory.AI, sampleInsight(), List.of())
+        );
+
+        when(rssCollector.collectAll()).thenReturn(collected);
+        when(deduplicationService.deduplicate(collected)).thenReturn(collected);
+        when(importanceRanker.rank(collected, collected)).thenReturn(ranked);
+        when(trendAnalyzer.analyze(anyMap())).thenReturn(sections);
+        when(formatter.format(anyList())).thenReturn(new TrendReport(
+                LocalDate.of(2026, 4, 7),
+                Instant.parse("2026-04-07T01:00:00Z"),
+                "markdown",
+                sections,
+                NotificationChannel.EMAIL,
+                true
+        ));
+
+        service.generate();
+
+        verify(trendAnalyzer).analyze(argThat(selected ->
+                titles(selected.get(ReportCategory.AI)).equals(List.of("AI-1", "AI-3", "AI-4"))
+        ));
+    }
+
     private boolean containsTopThreePerCategory(Map<ReportCategory, List<RankedArticle>> selected) {
         return titles(selected.get(ReportCategory.AI)).equals(List.of("AI-1", "AI-2", "AI-3"))
                 && titles(selected.get(ReportCategory.DEVELOPMENT)).equals(List.of("DEV-1", "DEV-2", "DEV-3"))
@@ -154,8 +199,8 @@ class TrendReportGenerationServiceTest {
     private CollectedArticle sampleArticle(ReportCategory category, String title) {
         return new CollectedArticle(
                 category,
-                "source",
-                "https://source.example/rss.xml",
+                "source-" + title,
+                "https://source.example/" + title + "/rss.xml",
                 title,
                 "https://source.example/" + title,
                 Instant.parse("2026-04-07T00:00:00Z"),
@@ -166,8 +211,22 @@ class TrendReportGenerationServiceTest {
     }
 
     private RankedArticle sampleRankedArticle(ReportCategory category, String title, double totalScore) {
+        return sampleRankedArticle(category, title, totalScore, "source-" + title);
+    }
+
+    private RankedArticle sampleRankedArticle(ReportCategory category, String title, double totalScore, String sourceName) {
         return new RankedArticle(
-                sampleArticle(category, title),
+                new CollectedArticle(
+                        category,
+                        sourceName,
+                        "https://source.example/" + sourceName + "/rss.xml",
+                        title,
+                        "https://source.example/" + title,
+                        Instant.parse("2026-04-07T00:00:00Z"),
+                        title + " summary",
+                        0.95,
+                        List.of("keyword")
+                ),
                 new ScoreBreakdown(totalScore, 0.9, 0.8, 0.95, 0.2, 0.35, 0.30, 0.20, 0.15, 1)
         );
     }

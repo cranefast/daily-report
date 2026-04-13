@@ -16,7 +16,8 @@ public final class TextNormalizationUtils {
             "the", "and", "for", "with", "from", "that", "this", "into", "amid", "after",
             "over", "under", "about", "today", "news", "says", "will", "than",
             "report", "reports", "update", "latest", "more", "your", "their", "what",
-            "when", "where", "how", "why", "are", "was", "were", "have", "has", "had"
+            "when", "where", "how", "why", "are", "was", "were", "have", "has", "had",
+            "new", "launch", "launches", "announces", "announce", "unveils", "unveil"
     );
 
     private TextNormalizationUtils() {
@@ -47,6 +48,18 @@ public final class TextNormalizationUtils {
                 .filter(token -> token.length() >= 3)
                 .filter(token -> !STOP_WORDS.contains(token))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    public static Set<String> tokenizeAll(String... values) {
+        if (values == null || values.length == 0) {
+            return Set.of();
+        }
+
+        Set<String> tokens = new LinkedHashSet<>();
+        for (String value : values) {
+            tokens.addAll(tokenize(value));
+        }
+        return tokens;
     }
 
     public static double jaccardSimilarity(String left, String right) {
